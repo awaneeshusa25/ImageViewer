@@ -10,11 +10,29 @@
     <div class="container">
         <header>
             <h1>360° Car Showroom</h1>
-            <p class="subtitle">Drag to rotate and explore the vehicle</p>
+            <p class="subtitle">Interactive 360° Vehicle View - Click and Drag to Explore</p>
         </header>
 
         <div class="viewer-wrapper">
             <div id="car-viewer" class="car-viewer">
+                <!-- Loading Indicator -->
+                <div class="loading-overlay" id="loading-overlay">
+                    <div class="spinner"></div>
+                    <p>Loading 360° View...</p>
+                </div>
+
+                <!-- Click to Interact Overlay -->
+                <div class="interact-overlay" id="interact-overlay">
+                    <div class="interact-content">
+                        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path>
+                            <path d="M21 3v5h-5"></path>
+                        </svg>
+                        <h2>CLICK TO INTERACT</h2>
+                        <p>Drag to rotate the car 360°</p>
+                    </div>
+                </div>
+
                 <img id="car-image" src="car_frames/frame_001.jpg" alt="Car 360 View" draggable="false">
                 <div class="rotation-hint" id="rotation-hint">
                     <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">

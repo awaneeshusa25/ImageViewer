@@ -6,14 +6,55 @@ let autoRotateInterval;
 let isDragging = false;
 let startX = 0;
 let currentX = 0;
+let hasInteracted = false;
 
 const carImage = document.getElementById('car-image');
 const currentFrameDisplay = document.getElementById('current-frame');
 const totalFramesDisplay = document.getElementById('total-frames');
 const rotationHint = document.getElementById('rotation-hint');
+const loadingOverlay = document.getElementById('loading-overlay');
+const interactOverlay = document.getElementById('interact-overlay');
 
 // Update total frames display
 totalFramesDisplay.textContent = totalFrames;
+
+// Preload all frames and show loading
+let loadedFrames = 0;
+const framesToPreload = totalFrames;
+
+function preloadAllFrames() {
+    for (let i = 1; i <= framesToPreload; i++) {
+        const frameString = String(i).padStart(3, '0');
+        const img = new Image();
+        img.onload = () => {
+            loadedFrames++;
+            if (loadedFrames === framesToPreload) {
+                // All frames loaded, hide loading overlay
+                setTimeout(() => {
+                    loadingOverlay.classList.add('hidden');
+                }, 500);
+            }
+        };
+        img.src = `car_frames/frame_${frameString}.jpg`;
+    }
+}
+
+// Start preloading on page load
+preloadAllFrames();
+
+// Handle interact overlay click
+interactOverlay.addEventListener('click', () => {
+    interactOverlay.classList.add('hidden');
+    hasInteracted = true;
+    // Start a gentle auto-rotation on first interaction
+    setTimeout(() => {
+        if (!isDragging && !isAutoRotating) {
+            for (let i = 1; i <= 10; i++) {
+                setTimeout(() => loadFrame(currentFrame + 1), i * 100);
+            }
+        }
+    }, 300);
+});
 
 // Load specific frame
 function loadFrame(frameNumber) {
@@ -28,6 +69,10 @@ function loadFrame(frameNumber) {
 
 // Mouse events for dragging
 carImage.parentElement.addEventListener('mousedown', (e) => {
+    if (!hasInteracted) {
+        interactOverlay.classList.add('hidden');
+        hasInteracted = true;
+    }
     isDragging = true;
     startX = e.clientX;
     if (rotationHint) {
@@ -57,6 +102,10 @@ document.addEventListener('mouseup', () => {
 
 // Touch events for mobile
 carImage.parentElement.addEventListener('touchstart', (e) => {
+    if (!hasInteracted) {
+        interactOverlay.classList.add('hidden');
+        hasInteracted = true;
+    }
     isDragging = true;
     startX = e.touches[0].clientX;
     if (rotationHint) {
