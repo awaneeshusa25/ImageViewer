@@ -1,7 +1,5 @@
 // Car 360 Viewer Configuration
 const totalFrames = 77; // Total number of frames extracted
-const FRAME_FOLDER = 'car_frames_nobg'; // Use background-removed frames
-const FRAME_EXTENSION = 'png'; // PNG for transparency support
 let currentFrame = 1;
 let isAutoRotating = false;
 let autoRotateInterval;
@@ -37,7 +35,7 @@ function preloadAllFrames() {
                 }, 500);
             }
         };
-        img.src = `${FRAME_FOLDER}/frame_${frameString}.${FRAME_EXTENSION}`;
+        img.src = `car_frames/frame_${frameString}.jpg`;
     }
 }
 
@@ -65,7 +63,7 @@ function loadFrame(frameNumber) {
     
     currentFrame = frameNumber;
     const frameString = String(frameNumber).padStart(3, '0');
-    carImage.src = `${FRAME_FOLDER}/frame_${frameString}.${FRAME_EXTENSION}`;
+    carImage.src = `car_frames/frame_${frameString}.jpg`;
     currentFrameDisplay.textContent = currentFrame;
 }
 
@@ -209,7 +207,7 @@ function preloadFrames() {
         
         const frameString = String(frameNum).padStart(3, '0');
         const img = new Image();
-        img.src = `${FRAME_FOLDER}/frame_${frameString}.${FRAME_EXTENSION}`;
+        img.src = `car_frames/frame_${frameString}.jpg`;
     }
 }
 
