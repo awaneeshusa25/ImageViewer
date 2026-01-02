@@ -9,6 +9,9 @@ let isDragging = false;
 let startX = 0;
 let currentX = 0;
 let hasInteracted = false;
+let lastFrameChangeTime = 0;
+const frameChangeDelay = 16; // ~60fps max frame changes
+let accumulatedDelta = 0;
 
 // Image cache to prevent flickering
 const imageCache = {};
@@ -67,10 +70,17 @@ interactOverlay.addEventListener('click', () => {
     }, 300);
 });
 
-// Load specific frame with double-buffering
+// Load specific frame with double-buffering and throttling
 function loadFrame(frameNumber) {
     if (frameNumber < 1) frameNumber = totalFrames;
     if (frameNumber > totalFrames) frameNumber = 1;
+    
+    // Throttle frame changes for stability
+    const now = Date.now();
+    if (now - lastFrameChangeTime < frameChangeDelay && isDragging) {
+        return; // Skip this frame change to maintain stability
+    }
+    lastFrameChangeTime = now;
     
     currentFrame = frameNumber;
     const frameString = String(frameNumber).padStart(3, '0');
@@ -126,18 +136,26 @@ document.addEventListener('mousemove', (e) => {
     currentX = e.clientX;
     const delta = currentX - startX;
     
-    // Smoother sensitivity: move 3 pixels = 1 frame
-    const frameDelta = Math.floor(delta / 3);
+    // Accumulate small movements for precise control
+    accumulatedDelta += delta;
+    
+    // Smoother sensitivity: move 4 pixels = 1 frame (more stable)
+    const frameDelta = Math.floor(accumulatedDelta / 4);
     
     if (Math.abs(frameDelta) >= 1) {
         let newFrame = currentFrame + frameDelta;
         loadFrame(newFrame);
+        startX = currentX;
+        // Reset accumulated delta after applying change
+        accumulatedDelta = accumulatedDelta % 4;
+    } else {
         startX = currentX;
     }
 });
 
 document.addEventListener('mouseup', () => {
     isDragging = false;
+    accumulatedDelta = 0; // Reset for next drag
 });
 
 // Touch events for mobile
@@ -160,18 +178,26 @@ carImage.parentElement.addEventListener('touchmove', (e) => {
     currentX = e.touches[0].clientX;
     const delta = currentX - startX;
     
-    // Smoother touch sensitivity
-    const frameDelta = Math.floor(delta / 3);
+    // Accumulate small movements for precise control
+    accumulatedDelta += delta;
+    
+    // Smoother touch sensitivity: 4 pixels = 1 frame
+    const frameDelta = Math.floor(accumulatedDelta / 4);
     
     if (Math.abs(frameDelta) >= 1) {
         let newFrame = currentFrame + frameDelta;
         loadFrame(newFrame);
+        startX = currentX;
+        // Reset accumulated delta after applying change
+        accumulatedDelta = accumulatedDelta % 4;
+    } else {
         startX = currentX;
     }
 });
 
 carImage.parentElement.addEventListener('touchend', () => {
     isDragging = false;
+    accumulatedDelta = 0; // Reset for next touch
 });
 
 // Auto-rotate button
