@@ -10,7 +10,7 @@ let startX = 0;
 let currentX = 0;
 let hasInteracted = false;
 let lastFrameChangeTime = 0;
-const frameChangeDelay = 30; // Slower frame changes (30ms)
+const frameChangeDelay = 25; // Optimized for smooth rotation
 let accumulatedDelta = 0;
 
 // Image cache to prevent flickering
@@ -105,9 +105,9 @@ function loadFrame(frameNumber) {
     currentFrameDisplay.textContent = currentFrame;
 }
 
-// Swap the visible and buffer images
+// Swap the visible and buffer images with smooth transition
 function swapImages() {
-    // Hide the old active image and show the buffer
+    // Smooth crossfade for professional look
     activeImage.style.opacity = '0';
     bufferImage.style.opacity = '1';
     
@@ -139,15 +139,15 @@ document.addEventListener('mousemove', (e) => {
     // Accumulate small movements for precise control
     accumulatedDelta += delta;
     
-    // Much slower sensitivity: move 8 pixels = 1 frame (very stable)
-    const frameDelta = Math.floor(accumulatedDelta / 8);
+    // Professional sensitivity: 6 pixels = 1 frame (balanced)
+    const frameDelta = Math.floor(accumulatedDelta / 6);
     
     if (Math.abs(frameDelta) >= 1) {
         let newFrame = currentFrame + frameDelta;
         loadFrame(newFrame);
         startX = currentX;
         // Reset accumulated delta after applying change
-        accumulatedDelta = accumulatedDelta % 8;
+        accumulatedDelta = accumulatedDelta % 6;
     } else {
         startX = currentX;
     }
@@ -181,15 +181,15 @@ carImage.parentElement.addEventListener('touchmove', (e) => {
     // Accumulate small movements for precise control
     accumulatedDelta += delta;
     
-    // Much slower touch sensitivity: 8 pixels = 1 frame
-    const frameDelta = Math.floor(accumulatedDelta / 8);
+    // Professional touch sensitivity: 6 pixels = 1 frame
+    const frameDelta = Math.floor(accumulatedDelta / 6);
     
     if (Math.abs(frameDelta) >= 1) {
         let newFrame = currentFrame + frameDelta;
         loadFrame(newFrame);
         startX = currentX;
         // Reset accumulated delta after applying change
-        accumulatedDelta = accumulatedDelta % 8;
+        accumulatedDelta = accumulatedDelta % 6;
     } else {
         startX = currentX;
     }
