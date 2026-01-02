@@ -2,10 +2,16 @@
 const DEFAULT_IMAGE = 'https://pannellum.org/images/alma.jpg';
 
 let viewer;
+let videoPlayer;
 let isAutoRotating = false;
+let currentMode = 'image'; // 'image' or 'video'
 
 // Initialize the panorama viewer
 function initViewer(imageUrl) {
+    currentMode = 'image';
+    hideVideo();
+    showPanorama();
+    
     const loadingIndicator = document.getElementById('loadingIndicator');
     loadingIndicator.classList.add('active');
 
@@ -55,19 +61,77 @@ function initViewer(imageUrl) {
     });
 }
 
+// Initialize 360 video viewer
+function initVideoViewer(videoUrl) {
+    currentMode = 'video';
+    hidePanorama();
+    showVideo();
+    
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    loadingIndicator.classList.add('active');
+    
+    // Dispose existing video player if it exists
+    if (videoPlayer) {
+        videoPlayer.dispose();
+    }
+    
+    const videoElement = document.getElementById('video-360');
+    videoElement.querySelector('source').src = videoUrl;
+    
+    // Initialize Video.js with VR plugin
+    videoPlayer = videojs('video-360', {
+        controls: true,
+        autoplay: false,
+        preload: 'auto',
+        fluid: false,
+        width: '100%',
+        height: 600
+    });
+    
+    // Enable VR mode
+    videoPlayer.vr({ projection: '360', forceCardboard: false });
+    
+    videoPlayer.ready(function() {
+        loadingIndicator.classList.remove('active');
+    });
+    
+    videoPlayer.on('error', function() {
+        loadingIndicator.classList.remove('active');
+        alert('Error loading the video. Please try a different file.');
+    });
+}
+
+function showPanorama() {
+    document.getElementById('panorama').style.display = 'block';
+}
+
+function hidePanorama() {
+    document.getElementById('panorama').style.display = 'none';
+}
+
+function showVideo() {
+    document.getElementById('video-360').style.display = 'block';
+}
+
+function hideVideo() {
+    document.getElementById('video-360').style.display = 'none';
+}
+
 // Initialize with default image
 initViewer(DEFAULT_IMAGE);
 
 // Fullscreen button
 document.getElementById('fullscreenBtn').addEventListener('click', function() {
-    if (viewer) {
+    if (currentMode === 'image' && viewer) {
         viewer.toggleFullscreen();
+    } else if (currentMode === 'video' && videoPlayer) {
+        videoPlayer.requestFullscreen();
     }
 });
 
-// Auto-rotate button
+// Auto-rotate button (only for images)
 document.getElementById('autoRotateBtn').addEventListener('click', function() {
-    if (viewer) {
+    if (currentMode === 'image' && viewer) {
         isAutoRotating = !isAutoRotating;
         
         if (isAutoRotating) {
@@ -84,7 +148,7 @@ document.getElementById('autoRotateBtn').addEventListener('click', function() {
 
 // Reset view button
 document.getElementById('resetBtn').addEventListener('click', function() {
-    if (viewer) {
+    if (currentMode === 'image' && viewer) {
         viewer.setPitch(0);
         viewer.setYaw(0);
         viewer.setHfov(100);
@@ -96,6 +160,8 @@ document.getElementById('resetBtn').addEventListener('click', function() {
             document.getElementById('autoRotateBtn').style.background = 'rgba(255, 255, 255, 0.95)';
             document.getElementById('autoRotateBtn').style.color = '#667eea';
         }
+    } else if (currentMode === 'video' && videoPlayer) {
+        videoPlayer.currentTime(0);
     }
 });
 
@@ -121,9 +187,31 @@ document.getElementById('imageInput').addEventListener('change', function(e) {
     }
 });
 
+// Video upload handler
+document.getElementById('videoInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    
+    if (file) {
+        // Check if it's a video
+        if (!file.type.startsWith('video/')) {
+            alert('Please select a valid video file.');
+            return;
+        }
+
+        // Create URL for the uploaded video
+        const videoUrl = URL.createObjectURL(file);
+        
+        // Load the new 360 video
+        initVideoViewer(videoUrl);
+        
+        // Reset input
+        e.target.value = '';
+    }
+});
+
 // Double-click for fullscreen
 document.getElementById('panorama').addEventListener('dblclick', function() {
-    if (viewer) {
+    if (currentMode === 'image' && viewer) {
         viewer.toggleFullscreen();
     }
 });
@@ -178,8 +266,9 @@ document.getElementById('panorama').addEventListener('touchmove', function(e) {
 });
 
 // Log viewer info
-console.log('%c360° Image Viewer Ready! 🎉', 'color: #667eea; font-size: 16px; font-weight: bold;');
+console.log('%c360° Showroom Viewer Ready! 🎉', 'color: #667eea; font-size: 16px; font-weight: bold;');
+console.log('Supports both 360° images and videos');
 console.log('Keyboard shortcuts:');
 console.log('  F - Toggle fullscreen');
-console.log('  A - Toggle auto-rotate');
-console.log('  R - Reset view');
+console.log('  A - Toggle auto-rotate (images only)');
+console.log('  R - Reset view / Restart video');

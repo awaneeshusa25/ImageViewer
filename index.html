@@ -3,20 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>360° Image Viewer</title>
+    <title>360° Media Viewer - Showroom</title>
     <link rel="stylesheet" href="style.css">
     <!-- Pannellum CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css"/>
+    <!-- Video.js CSS -->
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>360° Image Viewer</h1>
-            <p class="subtitle">Drag to explore the panoramic view</p>
+            <h1>360° Showroom Viewer</h1>
+            <p class="subtitle">Experience immersive 360° images and videos</p>
         </header>
 
         <div class="viewer-wrapper">
             <div id="panorama"></div>
+            <video id="video-360" class="video-js vjs-default-skin" crossorigin="anonymous" playsinline style="display:none;">
+                <source src="" type="video/mp4">
+            </video>
             
             <!-- Controls -->
             <div class="controls">
@@ -41,7 +46,7 @@
                 </button>
             </div>
 
-            <!-- Image Upload -->
+            <!-- Media Upload -->
             <div class="upload-section">
                 <label for="imageInput" class="upload-btn">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -52,6 +57,14 @@
                     Load 360° Image
                 </label>
                 <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                
+                <label for="videoInput" class="upload-btn video-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    Load 360° Video
+                </label>
+                <input type="file" id="videoInput" accept="video/*" style="display: none;">
             </div>
 
             <!-- Loading Indicator -->
@@ -68,18 +81,21 @@
                 <li><strong>Drag</strong> to look around</li>
                 <li><strong>Scroll</strong> to zoom in/out</li>
                 <li><strong>Double-click</strong> for fullscreen</li>
-                <li><strong>Upload</strong> your own 360° image using the button above</li>
+                <li><strong>Upload</strong> your own 360° images or videos</li>
             </ul>
         </div>
 
         <!-- Info -->
         <div class="info">
-            <p>📌 <strong>Tip:</strong> For best results, use equirectangular 360° panoramic images (2:1 aspect ratio)</p>
+            <p>📌 <strong>Tip:</strong> For best results, use equirectangular 360° content. Images: 2:1 aspect ratio | Videos: 360° format</p>
         </div>
     </div>
 
     <!-- Pannellum JS -->
     <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+    <!-- Video.js JS -->
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/videojs-vr@2.0.0/dist/videojs-vr.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
