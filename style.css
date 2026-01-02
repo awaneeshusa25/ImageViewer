@@ -71,15 +71,20 @@ header h1 {
     object-fit: contain;
     user-select: none;
     -webkit-user-select: none;
-    /* Clean studio rendering - no transitions for smooth rotation */
+    /* Clean studio rendering - optimized to prevent flickering */
     filter: contrast(1.05) brightness(1.02) saturate(1.08) drop-shadow(0 8px 25px rgba(0, 0, 0, 0.08));
     image-rendering: auto;
-    image-rendering: high-quality;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transform: translateZ(0);
     will-change: transform;
     backface-visibility: hidden;
+    /* Prevent flickering */
+    -webkit-backface-visibility: hidden;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
 }
 
 #car-image:hover {

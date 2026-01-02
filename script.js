@@ -10,6 +10,9 @@ let startX = 0;
 let currentX = 0;
 let hasInteracted = false;
 
+// Image cache to prevent flickering
+const imageCache = {};
+
 const carImage = document.getElementById('car-image');
 const currentFrameDisplay = document.getElementById('current-frame');
 const totalFramesDisplay = document.getElementById('total-frames');
@@ -29,6 +32,8 @@ function preloadAllFrames() {
         const frameString = String(i).padStart(3, '0');
         const img = new Image();
         img.onload = () => {
+            // Cache the loaded image
+            imageCache[i] = img;
             loadedFrames++;
             if (loadedFrames === framesToPreload) {
                 // All frames loaded, hide loading overlay
@@ -65,7 +70,14 @@ function loadFrame(frameNumber) {
     
     currentFrame = frameNumber;
     const frameString = String(frameNumber).padStart(3, '0');
-    carImage.src = `${FRAME_FOLDER}/frame_${frameString}.${FRAME_EXTENSION}`;
+    
+    // Use cached image if available to prevent flickering
+    if (imageCache[frameNumber]) {
+        carImage.src = imageCache[frameNumber].src;
+    } else {
+        carImage.src = `${FRAME_FOLDER}/frame_${frameString}.${FRAME_EXTENSION}`;
+    }
+    
     currentFrameDisplay.textContent = currentFrame;
 }
 
@@ -209,9 +221,15 @@ function preloadFrames() {
         if (frameNum < 1) frameNum += totalFrames;
         if (frameNum > totalFrames) frameNum -= totalFrames;
         
-        const frameString = String(frameNum).padStart(3, '0');
-        const img = new Image();
-        img.src = `${FRAME_FOLDER}/frame_${frameString}.${FRAME_EXTENSION}`;
+        // Only preload if not already cached
+        if (!imageCache[frameNum]) {
+            const frameString = String(frameNum).padStart(3, '0');
+            const img = new Image();
+            img.onload = () => {
+                imageCache[frameNum] = img;
+            };
+            img.src = `${FRAME_FOLDER}/frame_${frameString}.${FRAME_EXTENSION}`;
+        }
     }
 }
 
