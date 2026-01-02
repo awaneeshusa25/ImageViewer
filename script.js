@@ -1,6 +1,6 @@
 // Car 360 Viewer Configuration
 const totalFrames = 77; // Total number of frames extracted
-const FRAME_FOLDER = 'car_frames_fixed'; // Fixed frames - center of mass aligned
+const FRAME_FOLDER = 'car_frames_stable'; // Stable frames - aligned to reference
 const FRAME_EXTENSION = 'png'; // PNG for transparency
 let currentFrame = 1;
 let isAutoRotating = false;
