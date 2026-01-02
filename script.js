@@ -14,6 +14,10 @@ let hasInteracted = false;
 const imageCache = {};
 
 const carImage = document.getElementById('car-image');
+const carImageBuffer = document.getElementById('car-image-buffer');
+let activeImage = carImage; // Track which image is currently visible
+let bufferImage = carImageBuffer;
+
 const currentFrameDisplay = document.getElementById('current-frame');
 const totalFramesDisplay = document.getElementById('total-frames');
 const rotationHint = document.getElementById('rotation-hint');
@@ -63,7 +67,7 @@ interactOverlay.addEventListener('click', () => {
     }, 300);
 });
 
-// Load specific frame
+// Load specific frame with double-buffering
 function loadFrame(frameNumber) {
     if (frameNumber < 1) frameNumber = totalFrames;
     if (frameNumber > totalFrames) frameNumber = 1;
@@ -71,14 +75,36 @@ function loadFrame(frameNumber) {
     currentFrame = frameNumber;
     const frameString = String(frameNumber).padStart(3, '0');
     
-    // Use cached image if available to prevent flickering
+    // Load the new frame into the buffer image
+    const frameSrc = imageCache[frameNumber] ? imageCache[frameNumber].src : `${FRAME_FOLDER}/frame_${frameString}.${FRAME_EXTENSION}`;
+    
+    // Set the buffer image source
+    bufferImage.src = frameSrc;
+    
+    // Once loaded, swap visibility instantly
     if (imageCache[frameNumber]) {
-        carImage.src = imageCache[frameNumber].src;
+        // Image is cached, swap immediately
+        swapImages();
     } else {
-        carImage.src = `${FRAME_FOLDER}/frame_${frameString}.${FRAME_EXTENSION}`;
+        // Wait for image to load before swapping
+        bufferImage.onload = () => {
+            swapImages();
+        };
     }
     
     currentFrameDisplay.textContent = currentFrame;
+}
+
+// Swap the visible and buffer images
+function swapImages() {
+    // Hide the old active image and show the buffer
+    activeImage.style.opacity = '0';
+    bufferImage.style.opacity = '1';
+    
+    // Swap references
+    const temp = activeImage;
+    activeImage = bufferImage;
+    bufferImage = temp;
 }
 
 // Mouse events for dragging

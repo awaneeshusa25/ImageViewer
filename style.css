@@ -66,7 +66,8 @@ header h1 {
     cursor: grabbing;
 }
 
-#car-image {
+#car-image,
+#car-image-buffer {
     width: 100%;
     height: 100%;
     max-width: 100%;
@@ -86,14 +87,28 @@ header h1 {
     image-rendering: crisp-edges;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    will-change: transform;
+    will-change: opacity;
     backface-visibility: hidden;
     /* Prevent flickering */
     -webkit-backface-visibility: hidden;
     -webkit-transform: translate(-50%, -50%) translate3d(0, 0, 0);
+    /* Instant opacity transition for seamless frame switching */
+    transition: opacity 0ms;
+    pointer-events: none;
 }
 
-#car-image:hover {
+#car-image {
+    opacity: 1;
+    z-index: 2;
+}
+
+#car-image-buffer {
+    opacity: 0;
+    z-index: 1;
+}
+
+#car-image:hover,
+#car-image-buffer:hover {
     filter: contrast(1.06) brightness(1.03) saturate(1.1) drop-shadow(0 10px 30px rgba(0, 0, 0, 0.12));
 }
 
