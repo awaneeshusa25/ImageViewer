@@ -10,7 +10,7 @@ let startX = 0;
 let currentX = 0;
 let hasInteracted = false;
 let lastFrameChangeTime = 0;
-const frameChangeDelay = 16; // ~60fps max frame changes
+const frameChangeDelay = 30; // Slower frame changes (30ms)
 let accumulatedDelta = 0;
 
 // Image cache to prevent flickering
@@ -139,15 +139,15 @@ document.addEventListener('mousemove', (e) => {
     // Accumulate small movements for precise control
     accumulatedDelta += delta;
     
-    // Smoother sensitivity: move 4 pixels = 1 frame (more stable)
-    const frameDelta = Math.floor(accumulatedDelta / 4);
+    // Much slower sensitivity: move 8 pixels = 1 frame (very stable)
+    const frameDelta = Math.floor(accumulatedDelta / 8);
     
     if (Math.abs(frameDelta) >= 1) {
         let newFrame = currentFrame + frameDelta;
         loadFrame(newFrame);
         startX = currentX;
         // Reset accumulated delta after applying change
-        accumulatedDelta = accumulatedDelta % 4;
+        accumulatedDelta = accumulatedDelta % 8;
     } else {
         startX = currentX;
     }
@@ -181,15 +181,15 @@ carImage.parentElement.addEventListener('touchmove', (e) => {
     // Accumulate small movements for precise control
     accumulatedDelta += delta;
     
-    // Smoother touch sensitivity: 4 pixels = 1 frame
-    const frameDelta = Math.floor(accumulatedDelta / 4);
+    // Much slower touch sensitivity: 8 pixels = 1 frame
+    const frameDelta = Math.floor(accumulatedDelta / 8);
     
     if (Math.abs(frameDelta) >= 1) {
         let newFrame = currentFrame + frameDelta;
         loadFrame(newFrame);
         startX = currentX;
         // Reset accumulated delta after applying change
-        accumulatedDelta = accumulatedDelta % 4;
+        accumulatedDelta = accumulatedDelta % 8;
     } else {
         startX = currentX;
     }

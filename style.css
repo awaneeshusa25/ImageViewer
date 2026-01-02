@@ -64,20 +64,27 @@ header h1 {
 #car-image,
 #car-image-buffer {
     /* Exact dimensions matching normalized frames */
-    width: 800px;
-    height: 600px;
-    position: absolute;
-    top: 0;
-    left: 0;
+    width: 800px !important;
+    height: 600px !important;
+    min-width: 800px;
+    min-height: 600px;
+    max-width: 800px;
+    max-height: 600px;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
     user-select: none;
     -webkit-user-select: none;
     /* Professional showroom rendering */
     filter: contrast(1.08) brightness(1.05) saturate(1.12) drop-shadow(0 15px 40px rgba(0, 0, 0, 0.15));
     image-rendering: -webkit-optimize-contrast;
     backface-visibility: hidden;
-    transform: translateZ(0);
+    transform: translateZ(0) !important;
     /* Instant opacity transition for seamless frame switching */
-    transition: opacity 0ms;
+    transition: opacity 0ms !important;
     pointer-events: none;
 }
 
