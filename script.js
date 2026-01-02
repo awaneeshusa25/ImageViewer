@@ -1,6 +1,6 @@
 // Car 360 Viewer Configuration
 const totalFrames = 77; // Total number of frames extracted
-const FRAME_FOLDER = 'car_frames_perfect'; // Perfect frames - same size & position
+const FRAME_FOLDER = 'car_frames_final'; // Final frames - absolute positioning
 const FRAME_EXTENSION = 'png'; // PNG for transparency
 let currentFrame = 1;
 let isAutoRotating = false;
