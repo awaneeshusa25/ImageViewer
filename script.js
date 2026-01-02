@@ -88,8 +88,8 @@ document.addEventListener('mousemove', (e) => {
     currentX = e.clientX;
     const delta = currentX - startX;
     
-    // Sensitivity: move 5 pixels = 1 frame
-    const frameDelta = Math.floor(delta / 5);
+    // Smoother sensitivity: move 3 pixels = 1 frame
+    const frameDelta = Math.floor(delta / 3);
     
     if (Math.abs(frameDelta) >= 1) {
         let newFrame = currentFrame + frameDelta;
@@ -122,7 +122,8 @@ carImage.parentElement.addEventListener('touchmove', (e) => {
     currentX = e.touches[0].clientX;
     const delta = currentX - startX;
     
-    const frameDelta = Math.floor(delta / 5);
+    // Smoother touch sensitivity
+    const frameDelta = Math.floor(delta / 3);
     
     if (Math.abs(frameDelta) >= 1) {
         let newFrame = currentFrame + frameDelta;
@@ -202,7 +203,8 @@ setTimeout(() => {
 
 // Preload adjacent frames for smooth rotation
 function preloadFrames() {
-    for (let i = -2; i <= 2; i++) {
+    // Preload more frames ahead and behind for ultra-smooth rotation
+    for (let i = -5; i <= 5; i++) {
         let frameNum = currentFrame + i;
         if (frameNum < 1) frameNum += totalFrames;
         if (frameNum > totalFrames) frameNum -= totalFrames;

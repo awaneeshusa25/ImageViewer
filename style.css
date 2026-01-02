@@ -71,21 +71,19 @@ header h1 {
     object-fit: contain;
     user-select: none;
     -webkit-user-select: none;
-    /* Clean studio rendering */
+    /* Clean studio rendering - no transitions for smooth rotation */
     filter: contrast(1.05) brightness(1.02) saturate(1.08) drop-shadow(0 8px 25px rgba(0, 0, 0, 0.08));
     image-rendering: auto;
     image-rendering: high-quality;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transform: translateZ(0);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform, filter;
+    will-change: transform;
     backface-visibility: hidden;
 }
 
 #car-image:hover {
     filter: contrast(1.06) brightness(1.03) saturate(1.1) drop-shadow(0 10px 30px rgba(0, 0, 0, 0.12));
-    transform: translateZ(0) scale(1.01);
 }
 
 .rotation-hint {
