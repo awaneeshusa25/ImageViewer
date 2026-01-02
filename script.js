@@ -1,233 +1,135 @@
-// Default 360 image URL (using a sample panorama)
-const DEFAULT_IMAGE = 'https://pannellum.org/images/alma.jpg';
-
-let viewer;
-let videoPlayer;
+// Car 360 Viewer Configuration
+const totalFrames = 77; // Total number of frames extracted
+let currentFrame = 1;
 let isAutoRotating = false;
-let currentMode = 'image'; // 'image' or 'video'
+let autoRotateInterval;
+let isDragging = false;
+let startX = 0;
+let currentX = 0;
 
-// Initialize the panorama viewer
-function initViewer(imageUrl) {
-    currentMode = 'image';
-    hideVideo();
-    showPanorama();
+const carImage = document.getElementById('car-image');
+const currentFrameDisplay = document.getElementById('current-frame');
+const totalFramesDisplay = document.getElementById('total-frames');
+const rotationHint = document.getElementById('rotation-hint');
+
+// Update total frames display
+totalFramesDisplay.textContent = totalFrames;
+
+// Load specific frame
+function loadFrame(frameNumber) {
+    if (frameNumber < 1) frameNumber = totalFrames;
+    if (frameNumber > totalFrames) frameNumber = 1;
     
-    const loadingIndicator = document.getElementById('loadingIndicator');
-    loadingIndicator.classList.add('active');
+    currentFrame = frameNumber;
+    const frameString = String(frameNumber).padStart(3, '0');
+    carImage.src = `car_frames/frame_${frameString}.jpg`;
+    currentFrameDisplay.textContent = currentFrame;
+}
 
-    // Destroy existing viewer if it exists
-    if (viewer) {
-        viewer.destroy();
+// Mouse events for dragging
+carImage.parentElement.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startX = e.clientX;
+    if (rotationHint) {
+        rotationHint.style.display = 'none';
     }
+});
 
-    // Create new viewer
-    viewer = pannellum.viewer('panorama', {
-        type: 'equirectangular',
-        panorama: imageUrl,
-        autoLoad: true,
-        showControls: true,
-        showFullscreenCtrl: false,
-        showZoomCtrl: true,
-        mouseZoom: true,
-        doubleClickZoom: true,
-        draggable: true,
-        keyboardZoom: true,
-        friction: 0.15,
-        hfov: 100,
-        minHfov: 50,
-        maxHfov: 120,
-        pitch: 0,
-        yaw: 0,
-        autoRotate: false,
-        autoRotateInactivityDelay: 3000,
-        autoRotateStopDelay: 5000,
-        compass: false,
-        northOffset: 0,
-        hotSpotDebug: false,
-    });
-
-    // Hide loading indicator when loaded
-    viewer.on('load', function() {
-        setTimeout(() => {
-            loadingIndicator.classList.remove('active');
-        }, 500);
-    });
-
-    // Error handling
-    viewer.on('error', function(err) {
-        loadingIndicator.classList.remove('active');
-        console.error('Error loading panorama:', err);
-        alert('Error loading the panorama. Please try a different image.');
-    });
-}
-
-// Initialize 360 video viewer
-function initVideoViewer(videoUrl) {
-    currentMode = 'video';
-    hidePanorama();
-    showVideo();
+document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
     
-    const loadingIndicator = document.getElementById('loadingIndicator');
-    loadingIndicator.classList.add('active');
+    currentX = e.clientX;
+    const delta = currentX - startX;
     
-    // Dispose existing video player if it exists
-    if (videoPlayer) {
-        videoPlayer.dispose();
+    // Sensitivity: move 5 pixels = 1 frame
+    const frameDelta = Math.floor(delta / 5);
+    
+    if (Math.abs(frameDelta) >= 1) {
+        let newFrame = currentFrame + frameDelta;
+        loadFrame(newFrame);
+        startX = currentX;
     }
-    
-    const videoElement = document.getElementById('video-360');
-    videoElement.querySelector('source').src = videoUrl;
-    
-    // Initialize Video.js with VR plugin
-    videoPlayer = videojs('video-360', {
-        controls: true,
-        autoplay: false,
-        preload: 'auto',
-        fluid: false,
-        width: '100%',
-        height: 600
-    });
-    
-    // Enable VR mode
-    videoPlayer.vr({ projection: '360', forceCardboard: false });
-    
-    videoPlayer.ready(function() {
-        loadingIndicator.classList.remove('active');
-    });
-    
-    videoPlayer.on('error', function() {
-        loadingIndicator.classList.remove('active');
-        alert('Error loading the video. Please try a different file.');
-    });
-}
+});
 
-function showPanorama() {
-    document.getElementById('panorama').style.display = 'block';
-}
+document.addEventListener('mouseup', () => {
+    isDragging = false;
+});
 
-function hidePanorama() {
-    document.getElementById('panorama').style.display = 'none';
-}
+// Touch events for mobile
+carImage.parentElement.addEventListener('touchstart', (e) => {
+    isDragging = true;
+    startX = e.touches[0].clientX;
+    if (rotationHint) {
+        rotationHint.style.display = 'none';
+    }
+});
 
-function showVideo() {
-    document.getElementById('video-360').style.display = 'block';
-}
+carImage.parentElement.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    
+    currentX = e.touches[0].clientX;
+    const delta = currentX - startX;
+    
+    const frameDelta = Math.floor(delta / 5);
+    
+    if (Math.abs(frameDelta) >= 1) {
+        let newFrame = currentFrame + frameDelta;
+        loadFrame(newFrame);
+        startX = currentX;
+    }
+});
 
-function hideVideo() {
-    document.getElementById('video-360').style.display = 'none';
-}
+carImage.parentElement.addEventListener('touchend', () => {
+    isDragging = false;
+});
 
-// Initialize with default image
-initViewer(DEFAULT_IMAGE);
+// Auto-rotate button
+document.getElementById('autoRotateBtn').addEventListener('click', function() {
+    isAutoRotating = !isAutoRotating;
+    
+    if (isAutoRotating) {
+        this.style.background = '#667eea';
+        this.style.color = 'white';
+        
+        // Rotate through frames automatically
+        autoRotateInterval = setInterval(() => {
+            let nextFrame = currentFrame + 1;
+            if (nextFrame > totalFrames) nextFrame = 1;
+            loadFrame(nextFrame);
+        }, 50); // Speed: 50ms per frame
+    } else {
+        this.style.background = 'rgba(255, 255, 255, 0.95)';
+        this.style.color = '#667eea';
+        clearInterval(autoRotateInterval);
+    }
+});
 
 // Fullscreen button
 document.getElementById('fullscreenBtn').addEventListener('click', function() {
-    if (currentMode === 'image' && viewer) {
-        viewer.toggleFullscreen();
-    } else if (currentMode === 'video' && videoPlayer) {
-        videoPlayer.requestFullscreen();
-    }
-});
-
-// Auto-rotate button (only for images)
-document.getElementById('autoRotateBtn').addEventListener('click', function() {
-    if (currentMode === 'image' && viewer) {
-        isAutoRotating = !isAutoRotating;
-        
-        if (isAutoRotating) {
-            viewer.setAutoRotate(2); // Rotation speed
-            this.style.background = '#667eea';
-            this.style.color = 'white';
-        } else {
-            viewer.setAutoRotate(false);
-            this.style.background = 'rgba(255, 255, 255, 0.95)';
-            this.style.color = '#667eea';
-        }
-    }
-});
-
-// Reset view button
-document.getElementById('resetBtn').addEventListener('click', function() {
-    if (currentMode === 'image' && viewer) {
-        viewer.setPitch(0);
-        viewer.setYaw(0);
-        viewer.setHfov(100);
-        
-        // Stop auto-rotate
-        if (isAutoRotating) {
-            isAutoRotating = false;
-            viewer.setAutoRotate(false);
-            document.getElementById('autoRotateBtn').style.background = 'rgba(255, 255, 255, 0.95)';
-            document.getElementById('autoRotateBtn').style.color = '#667eea';
-        }
-    } else if (currentMode === 'video' && videoPlayer) {
-        videoPlayer.currentTime(0);
-    }
-});
-
-// Image upload handler
-document.getElementById('imageInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
+    const viewerWrapper = document.querySelector('.viewer-wrapper');
     
-    if (file) {
-        // Check if it's an image
-        if (!file.type.startsWith('image/')) {
-            alert('Please select a valid image file.');
-            return;
-        }
-
-        // Create URL for the uploaded image
-        const imageUrl = URL.createObjectURL(file);
-        
-        // Load the new panorama
-        initViewer(imageUrl);
-        
-        // Reset input
-        e.target.value = '';
-    }
-});
-
-// Video upload handler
-document.getElementById('videoInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    
-    if (file) {
-        // Check if it's a video
-        if (!file.type.startsWith('video/')) {
-            alert('Please select a valid video file.');
-            return;
-        }
-
-        // Create URL for the uploaded video
-        const videoUrl = URL.createObjectURL(file);
-        
-        // Load the new 360 video
-        initVideoViewer(videoUrl);
-        
-        // Reset input
-        e.target.value = '';
-    }
-});
-
-// Double-click for fullscreen
-document.getElementById('panorama').addEventListener('dblclick', function() {
-    if (currentMode === 'image' && viewer) {
-        viewer.toggleFullscreen();
+    if (!document.fullscreenElement) {
+        viewerWrapper.requestFullscreen().catch(err => {
+            console.log('Fullscreen error:', err);
+        });
+    } else {
+        document.exitFullscreen();
     }
 });
 
 // Keyboard shortcuts
 document.addEventListener('keydown', function(e) {
-    if (!viewer) return;
-
     switch(e.key) {
+        case 'ArrowLeft':
+            loadFrame(currentFrame - 1);
+            break;
+        case 'ArrowRight':
+            loadFrame(currentFrame + 1);
+            break;
         case 'f':
         case 'F':
-            viewer.toggleFullscreen();
-            break;
-        case 'r':
-        case 'R':
-            document.getElementById('resetBtn').click();
+            document.getElementById('fullscreenBtn').click();
             break;
         case 'a':
         case 'A':
@@ -236,39 +138,39 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Add touch gesture support
-let touchStartX = 0;
-let touchStartY = 0;
+// Hide rotation hint after first interaction
+setTimeout(() => {
+    if (rotationHint) {
+        rotationHint.style.opacity = '0';
+        rotationHint.style.transition = 'opacity 1s';
+        setTimeout(() => {
+            rotationHint.style.display = 'none';
+        }, 1000);
+    }
+}, 4000);
 
-document.getElementById('panorama').addEventListener('touchstart', function(e) {
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
-});
+// Preload adjacent frames for smooth rotation
+function preloadFrames() {
+    for (let i = -2; i <= 2; i++) {
+        let frameNum = currentFrame + i;
+        if (frameNum < 1) frameNum += totalFrames;
+        if (frameNum > totalFrames) frameNum -= totalFrames;
+        
+        const frameString = String(frameNum).padStart(3, '0');
+        const img = new Image();
+        img.src = `car_frames/frame_${frameString}.jpg`;
+    }
+}
 
-document.getElementById('panorama').addEventListener('touchmove', function(e) {
-    if (!viewer) return;
+// Preload initial frames
+preloadFrames();
 
-    const touchEndX = e.touches[0].clientX;
-    const touchEndY = e.touches[0].clientY;
+// Preload on frame change
+carImage.addEventListener('load', preloadFrames);
 
-    const deltaX = touchEndX - touchStartX;
-    const deltaY = touchEndY - touchStartY;
-
-    // Update viewer based on touch movement
-    const currentYaw = viewer.getYaw();
-    const currentPitch = viewer.getPitch();
-
-    viewer.setYaw(currentYaw - deltaX * 0.1);
-    viewer.setPitch(currentPitch + deltaY * 0.1);
-
-    touchStartX = touchEndX;
-    touchStartY = touchEndY;
-});
-
-// Log viewer info
-console.log('%c360° Showroom Viewer Ready! 🎉', 'color: #667eea; font-size: 16px; font-weight: bold;');
-console.log('Supports both 360° images and videos');
+console.log('%c360° Car Showroom Ready! 🚗', 'color: #667eea; font-size: 16px; font-weight: bold;');
+console.log(`Loaded ${totalFrames} frames from video`);
 console.log('Keyboard shortcuts:');
+console.log('  Left/Right Arrow - Rotate car');
 console.log('  F - Toggle fullscreen');
-console.log('  A - Toggle auto-rotate (images only)');
-console.log('  R - Reset view / Restart video');
+console.log('  A - Toggle auto-rotate');
