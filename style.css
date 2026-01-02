@@ -50,9 +50,8 @@ header h1 {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
     cursor: grab;
-    box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
     /* Smooth rendering context */
     transform: translateZ(0);
     -webkit-backface-visibility: hidden;
@@ -70,7 +69,7 @@ header h1 {
     user-select: none;
     -webkit-user-select: none;
     /* Enhanced smoothing and refinement filters */
-    filter: contrast(1.08) brightness(1.05) saturate(1.12) drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3)) blur(0.3px);
+    filter: contrast(1.08) brightness(1.05) saturate(1.12) drop-shadow(0 5px 15px rgba(0, 0, 0, 0.15));
     image-rendering: auto;
     image-rendering: -webkit-optimize-contrast;
     -webkit-font-smoothing: antialiased;
@@ -82,7 +81,7 @@ header h1 {
 }
 
 #car-image:hover {
-    filter: contrast(1.1) brightness(1.08) saturate(1.15) drop-shadow(0 15px 40px rgba(0, 0, 0, 0.4)) blur(0.3px);
+    filter: contrast(1.1) brightness(1.08) saturate(1.15) drop-shadow(0 8px 20px rgba(0, 0, 0, 0.2));
     transform: translateZ(0) scale(1.01);
 }
 
